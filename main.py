@@ -6,10 +6,35 @@ Created on Fri Jun  4 15:31:51 2021
 Based on YouTube instructions from Robert Heaton
 """
 
+class GameBoard(object):
+    def __init__(self, battleships, board_width, board_height):
+        self.battleships = battleships
+        self.shots = []
+        self.board_width = board_width
+        self.board_height = board_height
+    
+    # Update Battleship with any hits
+    # Save whether shot hit or miss
+    def take_shot(self, shot_location):
+        is_hit = False
+        
+        for b in self.battleships:
+            idx = b.hull_index(shot_location)
+            
+            if idx is not None:
+                is_hit = True
+                b.hits[idx] = True
+                break
+                
+        self.shots.append(Shot(shot_location, is_hit))
+    
+
+
 class Battleship(object):
     
     def __init__(self, hull):
         self.hull = hull
+        self.hits = [False] * len(hull)
         
     @staticmethod 
     def build(bow, length, direction):
@@ -27,7 +52,21 @@ class Battleship(object):
             hull.append(section)
             
         return Battleship(hull)
+    
+    def hull_index(self, location):
+        try:
+            return self.hull.index(location)
+        except ValueError:
+            return None
+        
                 
+class Shot(object):
+    
+    def __init__(self, location, is_hit):
+        self.location = location
+        self.is_hit = is_hit
+        
+
 def render_battleships(board_width, board_height, battleships):
     header = "+" + "-" * board_width + "+"
     
@@ -91,8 +130,13 @@ if __name__ == "__main__":
     for b in battleships:
         print(b.hull)
         
-    render_battleships(10, 10, battleships)
-    
+    game_board = GameBoard(battleships, 10, 10)
+    shots = [(1,1), (0,0), (5,7)]
+    for sh in shots:
+        game_board.take_shot(sh)
+        
+    print(game_board.shots)
+    print(game_board.battleships)
 
 """
     exit(0)
