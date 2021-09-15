@@ -6,6 +6,8 @@ Created on Fri Jun  4 15:31:51 2021
 Based on YouTube instructions from Robert Heaton
 """
 
+import copy
+
 class GameBoard(object):
     def __init__(self, battleships, width, height):
         self.battleships = battleships
@@ -117,22 +119,32 @@ def render(game_board, show_battleships = False):
 if __name__ == "__main__":
     battleships = [
         Battleship.build((1,1), 2, "S"),
-        Battleship.build((5,8), 5, "N"),
-        Battleship.build((2,3), 4, "E")
+        # Battleship.build((5,8), 5, "N"),
+        # Battleship.build((2,3), 4, "E")
     ]
     
-    game_board = GameBoard(battleships, 10, 10)
-        
+    game_boards = [
+        GameBoard(battleships, 10, 10),
+        GameBoard(copy.deepcopy(battleships), 10, 10)
+    ]
+    
+    off_idx = 0    
     while True:
+        def_idx = (off_idx + 1) % 2
+        def_board = game_boards[def_idx]
+        
+        print("Player %d, it is your turn" % (off_idx + 1))
         inp = input("Where do you want to shoot?\n")
         xstr, ystr = inp.split(",")
         x = int(xstr)
         y = int(ystr)
         
-        game_board.take_shot((x,y))
-        render(game_board)
+        def_board.take_shot((x,y))
+        render(def_board)
 
-        if game_board.is_game_over():
-            print("YOU WIN!")
+        if def_board.is_game_over():
+            print("PLAYER %d YOU WIN!" % (off_idx + 1))
             break
+        
+        off_idx = def_idx
         
